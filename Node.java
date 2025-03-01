@@ -11,6 +11,8 @@ public class Node
 
     public boolean isInputNode;
 
+    private final static double leakyGradient = 0.01;
+
     public Node(int numInputs)
     {
         this.numInputs = numInputs;
@@ -19,7 +21,7 @@ public class Node
 
         // Fill with random numbers
         for (int i = 0; i < numInputs; i++) {
-            inputWeights[i] = Math.random()*2 - 1;
+            inputWeights[i] = Math.random();
         }
 
         bias = 0;
@@ -46,7 +48,7 @@ public class Node
 
     private static double reLU(double input)
     {
-        if (input < 0) return 0;
+        if (input < 0) return input * leakyGradient;
         
         return input;
     }
@@ -54,7 +56,7 @@ public class Node
     public static double reLUDerivative(double x)
     {
         if (x > 0) return 1;
-        return 0;
+        return leakyGradient;
     }
 
     private static double logistic(double input)
@@ -81,6 +83,6 @@ public class Node
             weightedInput += inputs[i] * inputWeights[i];
         }
 
-        activation = logistic(weightedInput + bias);
+        activation = reLU(weightedInput + bias);
     }
 }

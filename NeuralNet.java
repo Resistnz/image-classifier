@@ -1,36 +1,34 @@
-import java.io.IOException;
 import java.util.Arrays;
 
 public class NeuralNet {
     public static void main(String[] args) 
     {
-        double[] balls = new double[4096];
+        /*double[] inputs = new double[4096];
         
         try
         {
-            balls = Image.ImageToArray("zebra-ii-square.jpg");
+            inputs = Image.ImageToArray("zebra-ii-square.jpg");
         }
-        catch (IOException e) { e.printStackTrace(); }
-
-        //System.out.println(Arrays.toString(balls));
+        catch (IOException e) { e.printStackTrace(); }*/
         
         double[] inputs = new double[]{0.3, 0.1};
-        /*double[] inputs = new double[4096];
 
-        for (int i = 0; i < 4096; i++) {
-            inputs[i] = Math.random()*2 - 1;
-        }*/
-
-        double[] targets = new double[]{0.5, 0.7};
+        double[] targets = new double[]{0.1, 0.9};
         int[] layerSizes = new int[]{2, 2, 2};
-        int trainingIterations = 800;
-        double learningRate = 0.5;
+        int trainingIterations = 2;
+        double maxError = 0.0001; // Finish iterating once the error is less than this
+        double learningRate = 0.01;
 
         // Create the layers
         Layer[] layers = CreateLayers(layerSizes, inputs);
 
+        System.out.print("\n");
+
         for (int i = 0; i < trainingIterations; i++) 
         {
+            //int progressPercent = (int)(100 * i / trainingIterations);
+            //System.out.println("Calculating iteration " + i + "/" + trainingIterations + " (" + progressPercent + "%)");
+            
             // Forward propagate
             for (Layer layer : layers)
             {
@@ -40,8 +38,14 @@ public class NeuralNet {
             // Calculate error
             Backpropagate(layers, targets, learningRate);
 
-            //double totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
-            //System.out.println("Squared error: " + totalError);
+            double totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
+
+            if (totalError < maxError) 
+            {
+                trainingIterations = i;
+                break;
+            }
+            System.out.println("Squared error: " + totalError);
         }
 
         double totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
@@ -126,10 +130,8 @@ public class NeuralNet {
                     }
                 }
 
-                //System.out.println("Error change: " + errorChange);
-
                 // Chain rule
-                node.delta = errorChange * out * (1 - out);
+                node.delta = errorChange * Node.reLUDerivative(out);
             }
         }
 
@@ -149,7 +151,7 @@ public class NeuralNet {
 
                     w -= learningRate * weightChange;
 
-                    //System.out.println("Changed weight from " + node.inputWeights[j] +  " to " + w);
+                    System.out.println("Changed weight from " + node.inputWeights[j] +  " to " + w);
 
                     // Update the weight
                     node.inputWeights[j] = w;   
