@@ -1,3 +1,6 @@
+
+import Node.ActivationType;
+
 public class Node
 {   
     private final int numInputs;
@@ -11,7 +14,48 @@ public class Node
 
     public boolean isInputNode;
 
-    private final static double leakyGradient = 0.01;
+    private final static double LEAKY_GRADIENT = 0.3;
+
+    public static enum ActivationType
+    {
+        RELU
+        {
+            @Override
+            public double activate(double input)
+            {
+                if (input < 0) return input * LEAKY_GRADIENT;
+                return input;
+            }
+
+            @Override  
+            public double derivative(double x)
+            {
+                if (x > 0) return 1;
+                return LEAKY_GRADIENT;
+            }
+        },
+        LOGISTIC
+        {
+            @Override
+            public double activate(double input)
+            {
+                if (input < 0) return input * LEAKY_GRADIENT;
+                return input;
+            }
+
+            @Override
+            public double derivative(double x)
+            {
+                if (x > 0) return 1;
+                return LEAKY_GRADIENT;
+            }
+        };
+
+        public abstract double activate(double x);
+        public abstract double derivative(double x);
+    }
+    
+    private ActivationType activationType;
 
     public Node(int numInputs)
     {
@@ -25,6 +69,8 @@ public class Node
         }
 
         bias = 0;
+
+        activationType = ActivationType.RELU;
     }
 
     // Add custom weights and bias
@@ -35,6 +81,8 @@ public class Node
         inputWeights = weights;
 
         this.bias = bias;
+
+        activationType = ActivationType.RELU;
     }
 
     // Handle input nodes
@@ -48,15 +96,15 @@ public class Node
 
     private static double reLU(double input)
     {
-        if (input < 0) return input * leakyGradient;
+        if (input < 0) return input * LEAKY_GRADIENT;
         
         return input;
     }
 
-    public static double reLUDerivative(double x)
+    private static double reLUDerivative(double x)
     {
         if (x > 0) return 1;
-        return leakyGradient;
+        return LEAKY_GRADIENT;
     }
 
     private static double logistic(double input)
@@ -66,10 +114,29 @@ public class Node
         return result;
     }
 
-    public static double logisticDerivative(double x)
+    private static double logisticDerivative(double x)
     {
         return x * (1 - x);
     }
+
+    public double activationFunction(double input)
+    {
+        double activated = 0;
+        
+        switch (activationType)
+        {
+            case ActivationType.RELU:
+                activated = reLU(input);
+                break;
+            case ActivationType.LOGISTIC:
+                activated = logistic(input);
+                break;
+        }
+
+        return activated;
+    }
+
+    //public static 
     
     public void CalculateOutput(double[] inputs)
     {

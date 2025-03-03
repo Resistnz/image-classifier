@@ -11,13 +11,13 @@ public class NeuralNet {
         }
         catch (IOException e) { e.printStackTrace(); }*/
         
-        double[] inputs = new double[]{0.3, 0.1};
+        double[] inputs = new double[]{0.3, 0.1, 0.5, 0.4, 0.5, 0.9, 0.2, 0.3, 0.2, 0.7};
 
-        double[] targets = new double[]{0.1, 0.9};
-        int[] layerSizes = new int[]{2, 2, 2};
-        int trainingIterations = 2;
-        double maxError = 0.0001; // Finish iterating once the error is less than this
-        double learningRate = 0.01;
+        double[] targets = new double[]{1};
+        int[] layerSizes = new int[]{10, 5, 1};
+        int trainingIterations = 10;
+        double maxError = 0; // Finish iterating once the error is less than this
+        double learningRate = 0.5;
 
         // Create the layers
         Layer[] layers = CreateLayers(layerSizes, inputs);
@@ -27,7 +27,7 @@ public class NeuralNet {
         for (int i = 0; i < trainingIterations; i++) 
         {
             //int progressPercent = (int)(100 * i / trainingIterations);
-            //System.out.println("Calculating iteration " + i + "/" + trainingIterations + " (" + progressPercent + "%)");
+            //System.out.print("\rCalculating iteration " + i + "/" + trainingIterations + " (" + progressPercent + "%)");
             
             // Forward propagate
             for (Layer layer : layers)
@@ -45,13 +45,22 @@ public class NeuralNet {
                 trainingIterations = i;
                 break;
             }
+            
             System.out.println("Squared error: " + totalError);
+
+            double[] outputs = new double[targets.length];
+            for (int j = 0; j < outputs.length; j++)
+            {
+                outputs[j] = layers[layerSizes.length - 1].nodes[j].activation;
+            }
+
+            System.out.println("Actual output: " + Arrays.toString(outputs));
         }
 
         double totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
 
         System.out.println("Training ran for " + trainingIterations + " iterations with a learning rate of " + learningRate);
-        //System.out.println("\nTraining inputs are " + Arrays.toString(inputs));
+        System.out.println("\nTraining inputs are " + Arrays.toString(inputs));
         System.out.println("\nTarget output: " + Arrays.toString(targets));
 
         // Get the outputs
@@ -91,15 +100,7 @@ public class NeuralNet {
     {
         int numLayers = layers.length;
         
-        //double totalError = layers[numLayers - 1].CalculateTotalError(targets);
-
-        //System.out.println("\nTargets are " + Arrays.toString(targets));
-        //System.out.println("Squared error: " + totalError);
-
         // Assign each node its delta
-        // Update weights
-
-        // Backpropagate
         for (int layerNum = numLayers - 1; layerNum > 0; layerNum--) 
         {
             // Go through each node in this layer
@@ -151,10 +152,12 @@ public class NeuralNet {
 
                     w -= learningRate * weightChange;
 
-                    System.out.println("Changed weight from " + node.inputWeights[j] +  " to " + w);
+                    //System.out.println("Changed weight from " + node.inputWeights[j] +  " to " + w);
+                    //System.out.println("Changed bias from " + node.bias +  " to " + (node.bias-node.delta));
 
                     // Update the weight
                     node.inputWeights[j] = w;   
+                    node.bias -= learningRate * node.delta; // Bias is essentially a node with activation 1
                 }
             }
         }
