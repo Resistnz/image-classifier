@@ -13,9 +13,9 @@ public class NeuralNet {
         
         double[] inputs = new double[]{0.3, 0.1, 0.5, 0.4, 0.5, 0.9, 0.2, 0.3, 0.2, 0.7};
 
-        double[] targets = new double[]{1};
+        double[] targets = new double[]{0};
         int[] layerSizes = new int[]{10, 5, 1};
-        int trainingIterations = 10;
+        int trainingIterations = 2;
         double maxError = 0; // Finish iterating once the error is less than this
         double learningRate = 0.5;
 
@@ -132,7 +132,7 @@ public class NeuralNet {
                 }
 
                 // Chain rule
-                node.delta = errorChange * Node.reLUDerivative(out);
+                node.delta = errorChange * node.ActivationFunctionDerivative(node.weightedInput);
             }
         }
 
