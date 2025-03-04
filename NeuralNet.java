@@ -7,17 +7,22 @@ public class NeuralNet {
         long startTime = System.nanoTime();
         long lastTimestamp = startTime;
         
-        double[] inputs = new double[4096];
-        double[] inputs2 = new double[4096];
+        //double[] input = new double[4096];
+        //double[] input2 = new double[4096];
+
+        int numImages = 2;
+        double[][] inputs = new double[numImages][4096];
         
         try
         {
-            inputs = Image.ImageToArray("zebra.jpg");
-            inputs2 = Image.ImageToArray("zebra2.jpg");
+            for (int i = 0; i < numImages; i++)
+            {
+                inputs[i] = Image.ImageToArray("zebras/" + i + ".jpg");
+            }
         }
         catch (IOException e) { e.printStackTrace(); }
 
-        System.out.println("Reading imagse took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms\n");
+        System.out.println("Reading images took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms\n");
         lastTimestamp = System.nanoTime();
 
         // Parameters
@@ -30,39 +35,44 @@ public class NeuralNet {
         double learningRate = 0.01;  
 
         // Create the layers
-        Layer[] layers = CreateLayers(layerSizes, inputs);
+        Layer[] layers = CreateLayers(layerSizes, inputs[0]);
 
         System.out.println("Creating layers took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms\n");
         lastTimestamp = System.nanoTime();
 
         double totalError = 0;
 
+        // Perform each iteration
         for (int i = 0; i < trainingIterations; i++) 
         {
             //int progressPercent = (int)(100 * i / trainingIterations);
             //System.out.print("\rCalculating iteration " + i + "/" + trainingIterations + " (" + progressPercent + "%)");
             
-            // Forward propagate
-            for (Layer layer : layers)
+            // Loop over each image
+            for (int j = 0; j < numImages; j++)
             {
-                layer.Calculate();
+                // Forward propagate
+                for (Layer layer : layers)
+                {
+                    layer.Calculate();
+                }
+
+                // Calculate error
+                Backpropagate(layers, targets, learningRate);
             }
 
-            // Calculate error
-            Backpropagate(layers, targets, learningRate);
-
-            totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
+            /*totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
 
             if (totalError < maxError) 
             {
                 trainingIterations = i;
                 break;
-            }
+            }*/
         }
 
         System.out.println("Training ran for " + trainingIterations + " iterations with a learning rate of " + learningRate);
         System.out.println("Training took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms");
-        //System.out.println("\nTraining inputs are " + Arrays.toString(inputs));
+        //System.out.println("\nTraining inputs are " + Arrays.toString(input));
         System.out.println("\nTarget output: " + Arrays.toString(targets));
 
         // Get the outputs
