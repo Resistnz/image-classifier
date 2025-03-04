@@ -8,27 +8,24 @@ public class NeuralNet {
         long lastTimestamp = startTime;
         
         double[] inputs = new double[4096];
+        double[] inputs2 = new double[4096];
         
         try
         {
-            inputs = Image.ImageToArray("zebra-ii-square.jpg");
+            inputs = Image.ImageToArray("zebra.jpg");
+            inputs2 = Image.ImageToArray("zebra2.jpg");
         }
         catch (IOException e) { e.printStackTrace(); }
 
-        System.out.println("Reading image took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms\n");
+        System.out.println("Reading imagse took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms\n");
         lastTimestamp = System.nanoTime();
-
-        /*for (int i = 0; i < 4096; i ++)
-        {
-            inputs[i] = Math.random() * 2 - 1;
-        }*/
 
         // Parameters
         //double[] inputs = new double[]{0.3, 0.7};
         double[] targets = new double[]{1};
 
         int[] layerSizes = new int[]{4096, 2000, 1};
-        int trainingIterations = 5;
+        int trainingIterations = 10;
         double maxError = 0; // Finish iterating once the error is less than this
         double learningRate = 0.01;  
 
@@ -140,7 +137,11 @@ public class NeuralNet {
                 if (layerNum == numLayers - 1)
                 {
                     double target = targets[i];
-                    errorChange = out - target;
+                    
+                    // Derive the different error functions
+                    // Should be in Layer.java
+                    if (targets.length == 1) errorChange = -(target/out - (1-target)*(1-out));
+                    else errorChange = out - target;
                 }
                 else
                 {
