@@ -99,9 +99,22 @@ public class Layer
         //lastTimestamp = System.nanoTime();
     }
 
-    // Squared error function (multiplied by 0.5)
+    // Get the error
     public double CalculateTotalError(double[] target)
     {
+        // Use binary cross entropy if only 1 output
+        if (target.length == 1)
+        {
+            double output = nodes[0].activation;
+
+            if (output == target[0]) return 0;
+            
+            double loss = -(target[0] * Math.log(output) + (1 - target[0]) * Math.log(1 - output));
+
+            return loss;
+        }
+        
+        // Otherwise use mean squared error
         double outputSum = 0;
 
         for (int i = 0; i < target.length; i++) 

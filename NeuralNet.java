@@ -1,38 +1,44 @@
 import java.util.Arrays;
+import java.io.IOException;
 
 public class NeuralNet {
     public static void main(String[] args) 
     {
+        long startTime = System.nanoTime();
+        long lastTimestamp = startTime;
+        
         double[] inputs = new double[4096];
         
-        /*try
+        try
         {
             inputs = Image.ImageToArray("zebra-ii-square.jpg");
         }
-        catch (IOException e) { e.printStackTrace(); }*/
+        catch (IOException e) { e.printStackTrace(); }
 
-        for (int i = 0; i < 4096; i ++)
+        System.out.println("Reading image took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms\n");
+        lastTimestamp = System.nanoTime();
+
+        /*for (int i = 0; i < 4096; i ++)
         {
             inputs[i] = Math.random() * 2 - 1;
-        }
+        }*/
 
         // Parameters
         //double[] inputs = new double[]{0.3, 0.7};
-        double[] targets = new double[]{0};
+        double[] targets = new double[]{1};
 
         int[] layerSizes = new int[]{4096, 2000, 1};
-        int trainingIterations = 50;
+        int trainingIterations = 5;
         double maxError = 0; // Finish iterating once the error is less than this
-        double learningRate = 0.01;
-
-        long startTime = System.nanoTime();
-        long lastTimestamp = startTime;
+        double learningRate = 0.01;  
 
         // Create the layers
         Layer[] layers = CreateLayers(layerSizes, inputs);
 
         System.out.println("Creating layers took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms\n");
         lastTimestamp = System.nanoTime();
+
+        double totalError = 0;
 
         for (int i = 0; i < trainingIterations; i++) 
         {
@@ -45,39 +51,20 @@ public class NeuralNet {
                 layer.Calculate();
             }
 
-            //System.out.println("Forward propagation took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms");
-            //lastTimestamp = System.nanoTime();
-
             // Calculate error
             Backpropagate(layers, targets, learningRate);
 
-            //System.out.println("Backpropagation took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms");
-            //lastTimestamp = System.nanoTime();
-
-            double totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
+            totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
 
             if (totalError < maxError) 
             {
                 trainingIterations = i;
                 break;
             }
-            
-            /*System.out.println("Squared error: " + totalError);
-
-            double[] outputs = new double[targets.length];
-            for (int j = 0; j < outputs.length; j++)
-            {
-                outputs[j] = layers[layerSizes.length - 1].nodes[j].activation;
-            }
-
-            System.out.println("Actual output: " + Arrays.toString(outputs));*/
         }
-
-        double totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
 
         System.out.println("Training ran for " + trainingIterations + " iterations with a learning rate of " + learningRate);
         System.out.println("Training took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms");
-        //lastTimestamp = System.nanoTime();
         //System.out.println("\nTraining inputs are " + Arrays.toString(inputs));
         System.out.println("\nTarget output: " + Arrays.toString(targets));
 
@@ -89,8 +76,23 @@ public class NeuralNet {
         }
 
         System.out.println("Actual output: " + Arrays.toString(outputs));
+        System.out.println("Error: " + totalError);
 
-        System.out.println("Squared error: " + totalError);
+        /*int deadNeurons = 0;
+        double activationSum = 0;
+        double biasSum = 0;
+
+        for (Layer layer : layers)
+        {
+            for (Node node : layer.nodes)
+            {
+                if (Math.abs(node.activation) == 0.001) deadNeurons++;
+                activationSum += node.activation;
+                biasSum += node.bias;
+            }
+        }
+
+        System.out.println("\nDead neurons: " + deadNeurons + ". Activation sum: " + activationSum + ". Bias sum: " + biasSum);*/
     }
 
     // Create layers based on the sizes provided and inputs

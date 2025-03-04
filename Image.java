@@ -5,6 +5,7 @@ import javax.imageio.ImageIO;
 
 public class Image
 {
+    // Returns values ranging from [-1, 1]
     public static double[] ImageToArray(String filepath) throws IOException
     {
         File imageFile = new File(filepath);
@@ -12,6 +13,7 @@ public class Image
 
         double[] result = new double[4096];
         int count = 0;
+
 
         for (int y = 0; y < img.getHeight(); y++) 
         {
@@ -25,9 +27,9 @@ public class Image
                 int g = (pixel >> 8) & 0xFF;
                 int b = (pixel & 0xFF);
 
-                double grey = ((r + g + b) / 3);
+                double grey = ((r + g + b) / 3) / 255;
                 
-                result[count] = grey;
+                result[count] = grey*2 - 1;
                 count++;
             }
         }
