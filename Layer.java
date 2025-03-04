@@ -8,7 +8,7 @@ public class Layer
     public int layerID;
     private int previousLayerNodes = 0;
 
-    public Layer(int numNodes, Layer previousLayer, int layerID)
+    public Layer(int numNodes, Layer previousLayer, int layerID, Node.NodeActivation activationType)
     {
         this.layerID = layerID;
         
@@ -22,6 +22,8 @@ public class Layer
         for (int i = 0; i < numNodes; i++) 
         {        
             Node node = new Node(previousLayerNodes);
+
+            node.SetActivationFunction(activationType);
 
             nodes[i] = node;
         }
@@ -41,9 +43,6 @@ public class Layer
         for (int i = 0; i < numNodes; i++) 
         {        
             Node node = new Node(true, inputs[i]);
-            
-            // Use logistic for last node
-            if (i == numNodes - 1) node.SetActivationFunction(Node.NodeActivation.LOGISTIC);
 
             nodes[i] = node;
         }

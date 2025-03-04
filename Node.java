@@ -1,3 +1,5 @@
+import java.util.Random;
+
 public class Node
 {   
     private final int numInputs;
@@ -20,17 +22,15 @@ public class Node
             @Override
             public double activate(double input)
             {
-                //System.out.println("Input: " + input + " Output: " + input * LEAKY_GRADIENT);
-                if (input < 0) return input * LEAKY_GRADIENT;
-                return input;
+                if (input > 0) return input;
+                return input * LEAKY_GRADIENT;
             }
 
             @Override  
             public double derivative(double x)
             {
-                //System.out.println("Input: " + x + " Derivative Output: " + (x > 0 ? 1 : LEAKY_GRADIENT));
-                if (x > 0) return 1;
-                return LEAKY_GRADIENT;
+                if (x > 0) return LEAKY_GRADIENT;
+                return 0;
             }
         },
         LOGISTIC
@@ -38,7 +38,6 @@ public class Node
             @Override
             public double activate(double input)
             {
-                //System.out.println("Input: " + input + " Output: " + (1f / (1f + Math.exp(-input))));
                 return 1f / (1f + Math.exp(-input));
             }
 
@@ -46,7 +45,6 @@ public class Node
             public double derivative(double x)
             {
                 double fx = activate(x);
-                //System.out.println("Input: " + x + " Derivative Output: " + (fx * (1 - fx)));
                 return fx * (1 - fx);
             }
         };
@@ -55,7 +53,9 @@ public class Node
         public abstract double derivative(double x);
     }
     
-    private NodeActivation activationType;
+    private NodeActivation activationType = NodeActivation.RELU;
+
+    private Random random = new Random();
 
     public Node(int numInputs)
     {
@@ -63,14 +63,15 @@ public class Node
 
         inputWeights = new double[numInputs];
 
-        // Fill with random numbers
+        // Use He initialisation
         for (int i = 0; i < numInputs; i++) {
-            inputWeights[i] = Math.random();
+            inputWeights[i] = random.nextGaussian() * Math.sqrt(2.0 / numInputs);
         }
 
         bias = 0;
 
-        activationType = NodeActivation.RELU;
+        //if (activationType == NodeActivation.LOGISTIC) System.out.println("womp womp");
+        //activationType = NodeActivation.RELU;
     }
 
     // Add custom weights and bias
@@ -94,12 +95,18 @@ public class Node
 
     public void SetActivationFunction(NodeActivation activationType)
     {
+        //System.out.println("Setting activation function: " + activationType);
         this.activationType = activationType;
     }
 
     private double ActivationFunction(double input)
     {
         return activationType.activate(input);
+    }
+
+    public NodeActivation GetNodeActivation()
+    {
+        return activationType;
     }
 
     public double ActivationFunctionDerivative(double x)

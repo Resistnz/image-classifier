@@ -3,19 +3,24 @@ import java.util.Arrays;
 public class NeuralNet {
     public static void main(String[] args) 
     {
-        /*double[] inputs = new double[4096];
+        double[] inputs = new double[4096];
         
-        try
+        /*try
         {
             inputs = Image.ImageToArray("zebra-ii-square.jpg");
         }
         catch (IOException e) { e.printStackTrace(); }*/
-        
-        // Parameters
-        double[] inputs = new double[]{0.3, 0.1, 0.5, 0.4, 0.5, 0.9, 0.2, 0.3, 0.2, 0.7};
-        double[] targets = new double[]{0};
 
-        int[] layerSizes = new int[]{10, 5, 1};
+        for (int i = 0; i < 4096; i ++)
+        {
+            inputs[i] = Math.random() * 2 - 1;
+        }
+
+        // Parameters
+        //double[] inputs = new double[]{0.3, 0.7};
+        double[] targets = new double[]{0.5};
+
+        int[] layerSizes = new int[]{4096, 2000, 1};
         int trainingIterations = 50;
         double maxError = 0; // Finish iterating once the error is less than this
         double learningRate = 0.01;
@@ -47,7 +52,7 @@ public class NeuralNet {
                 break;
             }
             
-            /*System.out.println("Squared error: " + totalError);
+            System.out.println("Squared error: " + totalError);
 
             double[] outputs = new double[targets.length];
             for (int j = 0; j < outputs.length; j++)
@@ -55,13 +60,13 @@ public class NeuralNet {
                 outputs[j] = layers[layerSizes.length - 1].nodes[j].activation;
             }
 
-            System.out.println("Actual output: " + Arrays.toString(outputs));*/
+            System.out.println("Actual output: " + Arrays.toString(outputs));
         }
 
         double totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
 
         System.out.println("Training ran for " + trainingIterations + " iterations with a learning rate of " + learningRate);
-        System.out.println("\nTraining inputs are " + Arrays.toString(inputs));
+        //System.out.println("\nTraining inputs are " + Arrays.toString(inputs));
         System.out.println("\nTarget output: " + Arrays.toString(targets));
 
         // Get the outputs
@@ -89,7 +94,11 @@ public class NeuralNet {
 
         for (int i = 1; i < numLayers; i++) 
         {
-            Layer layer = new Layer(layerSizes[i], layers[i-1], i);
+            // Use logistic only for last layer
+            var activationType = Node.NodeActivation.RELU;
+            if (i == numLayers - 1) activationType = Node.NodeActivation.LOGISTIC;
+            
+            Layer layer = new Layer(layerSizes[i], layers[i-1], i, activationType);
 
             layers[i] = layer;
         }
