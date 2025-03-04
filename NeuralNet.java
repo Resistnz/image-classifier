@@ -11,13 +11,14 @@ public class NeuralNet {
         }
         catch (IOException e) { e.printStackTrace(); }*/
         
+        // Parameters
         double[] inputs = new double[]{0.3, 0.1, 0.5, 0.4, 0.5, 0.9, 0.2, 0.3, 0.2, 0.7};
-
         double[] targets = new double[]{0};
+
         int[] layerSizes = new int[]{10, 5, 1};
-        int trainingIterations = 2;
+        int trainingIterations = 50;
         double maxError = 0; // Finish iterating once the error is less than this
-        double learningRate = 0.5;
+        double learningRate = 0.01;
 
         // Create the layers
         Layer[] layers = CreateLayers(layerSizes, inputs);
@@ -46,7 +47,7 @@ public class NeuralNet {
                 break;
             }
             
-            System.out.println("Squared error: " + totalError);
+            /*System.out.println("Squared error: " + totalError);
 
             double[] outputs = new double[targets.length];
             for (int j = 0; j < outputs.length; j++)
@@ -54,7 +55,7 @@ public class NeuralNet {
                 outputs[j] = layers[layerSizes.length - 1].nodes[j].activation;
             }
 
-            System.out.println("Actual output: " + Arrays.toString(outputs));
+            System.out.println("Actual output: " + Arrays.toString(outputs));*/
         }
 
         double totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
@@ -118,7 +119,6 @@ public class NeuralNet {
                     double target = targets[i];
                     errorChange = out - target;
                 }
-                // Otherwise more complicated
                 else
                 {
                     // Sum the deltas of the nodes in the next layer
@@ -149,6 +149,8 @@ public class NeuralNet {
                     
                     // How a change in weight changes the error, de/dw
                     double weightChange = node.delta * layers[layerNum - 1].nodes[j].activation;
+
+                    //System.out.println(node.delta);
 
                     w -= learningRate * weightChange;
 

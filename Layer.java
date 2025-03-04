@@ -41,6 +41,9 @@ public class Layer
         for (int i = 0; i < numNodes; i++) 
         {        
             Node node = new Node(true, inputs[i]);
+            
+            // Use logistic for last node
+            if (i == numNodes - 1) node.SetActivationFunction(Node.NodeActivation.LOGISTIC);
 
             nodes[i] = node;
         }

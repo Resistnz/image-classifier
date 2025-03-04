@@ -11,7 +11,7 @@ public class Node
 
     public boolean isInputNode;
 
-    private final static double LEAKY_GRADIENT = 0.3;
+    private final static double LEAKY_GRADIENT = 0.01;
 
     public static enum NodeActivation
     {
@@ -20,7 +20,7 @@ public class Node
             @Override
             public double activate(double input)
             {
-                System.out.println("Input: " + input + " Output: " + input * LEAKY_GRADIENT);
+                //System.out.println("Input: " + input + " Output: " + input * LEAKY_GRADIENT);
                 if (input < 0) return input * LEAKY_GRADIENT;
                 return input;
             }
@@ -28,6 +28,7 @@ public class Node
             @Override  
             public double derivative(double x)
             {
+                //System.out.println("Input: " + x + " Derivative Output: " + (x > 0 ? 1 : LEAKY_GRADIENT));
                 if (x > 0) return 1;
                 return LEAKY_GRADIENT;
             }
@@ -37,7 +38,7 @@ public class Node
             @Override
             public double activate(double input)
             {
-                System.out.println("Input: " + input + " Output: " + (1f / (1f + Math.exp(-input))));
+                //System.out.println("Input: " + input + " Output: " + (1f / (1f + Math.exp(-input))));
                 return 1f / (1f + Math.exp(-input));
             }
 
@@ -45,7 +46,7 @@ public class Node
             public double derivative(double x)
             {
                 double fx = activate(x);
-                System.out.println("Input: " + x + " Derivative Output: " + (fx * (1 - fx)));
+                //System.out.println("Input: " + x + " Derivative Output: " + (fx * (1 - fx)));
                 return fx * (1 - fx);
             }
         };
@@ -69,7 +70,7 @@ public class Node
 
         bias = 0;
 
-        activationType = NodeActivation.LOGISTIC;
+        activationType = NodeActivation.RELU;
     }
 
     // Add custom weights and bias
@@ -80,8 +81,6 @@ public class Node
         inputWeights = weights;
 
         this.bias = bias;
-
-        activationType = NodeActivation.LOGISTIC;
     }
 
     // Handle input nodes
@@ -91,6 +90,11 @@ public class Node
         this(0);
         this.isInputNode = isInputNode;
         this.activation = activation;
+    }
+
+    public void SetActivationFunction(NodeActivation activationType)
+    {
+        this.activationType = activationType;
     }
 
     private double ActivationFunction(double input)
