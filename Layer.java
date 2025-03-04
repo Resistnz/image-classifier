@@ -50,27 +50,53 @@ public class Layer
 
     public void Calculate()
     {
+        //long lastTimestamp = System.nanoTime();
+        //long startTime = lastTimestamp;
+
+        //long a = 0;
+        //long b = 0;
+        //long c = 0;
+        //int itertracker = 0;
+        
         if (previousLayer == null) return;
+
+        // Get all inputs from previous layer
+        int numNodesInPreviousLayer = previousLayerNodes;
+        double inputs[] = new double[numNodesInPreviousLayer];
+
+        int count = 0;
         
         // Calculate every node
         for (int i = 0; i < numNodes; i++)
         {
             Node node = nodes[i];
 
-            // Get all inputs from previous layer
-            int numNodesInPreviousLayer = previousLayerNodes;
-            double inputs[] = new double[numNodesInPreviousLayer];
+            //c += System.nanoTime() - lastTimestamp;
+            //lastTimestamp = System.nanoTime();
 
-            int count = 0;
-            for (Node previousNode : previousLayer.nodes)
+            count = 0;
+            for (int j = 0; j < previousLayerNodes; j++)
             {
-                inputs[count] = previousNode.activation;
+                inputs[count] = previousLayer.nodes[j].activation;
                 count++;
             }
  
+            //a += System.nanoTime() - lastTimestamp;
+            //lastTimestamp = System.nanoTime();
+
             // Calculate this node
             node.CalculateOutput(inputs);
+
+            //b += System.nanoTime() - lastTimestamp;
+            //lastTimestamp = System.nanoTime();
         }
+
+        //System.out.println("Creating arrays took " + (c) / 1e6 + " ms");
+        //System.out.println("Getting previous inputs took " + (a) / 1e6 + " ms and used " + itertracker + " iterations");
+        //System.out.println("Node calculating took " + (b) / 1e6 + " ms");
+        
+        //System.out.println("Layer calculation took " + (System.nanoTime() - startTime) / 1e6 + " ms\n");
+        //lastTimestamp = System.nanoTime();
     }
 
     // Squared error function (multiplied by 0.5)

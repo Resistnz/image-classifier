@@ -68,7 +68,7 @@ public class Node
             inputWeights[i] = random.nextGaussian() * Math.sqrt(2.0 / numInputs);
         }
 
-        bias = 0;
+        bias = 0.01;
 
         //if (activationType == NodeActivation.LOGISTIC) System.out.println("womp womp");
         //activationType = NodeActivation.RELU;

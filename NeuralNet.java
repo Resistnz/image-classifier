@@ -18,17 +18,21 @@ public class NeuralNet {
 
         // Parameters
         //double[] inputs = new double[]{0.3, 0.7};
-        double[] targets = new double[]{0.5};
+        double[] targets = new double[]{0};
 
         int[] layerSizes = new int[]{4096, 2000, 1};
         int trainingIterations = 50;
         double maxError = 0; // Finish iterating once the error is less than this
         double learningRate = 0.01;
 
+        long startTime = System.nanoTime();
+        long lastTimestamp = startTime;
+
         // Create the layers
         Layer[] layers = CreateLayers(layerSizes, inputs);
 
-        System.out.print("\n");
+        System.out.println("Creating layers took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms\n");
+        lastTimestamp = System.nanoTime();
 
         for (int i = 0; i < trainingIterations; i++) 
         {
@@ -41,8 +45,14 @@ public class NeuralNet {
                 layer.Calculate();
             }
 
+            //System.out.println("Forward propagation took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms");
+            //lastTimestamp = System.nanoTime();
+
             // Calculate error
             Backpropagate(layers, targets, learningRate);
+
+            //System.out.println("Backpropagation took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms");
+            //lastTimestamp = System.nanoTime();
 
             double totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
 
@@ -52,7 +62,7 @@ public class NeuralNet {
                 break;
             }
             
-            System.out.println("Squared error: " + totalError);
+            /*System.out.println("Squared error: " + totalError);
 
             double[] outputs = new double[targets.length];
             for (int j = 0; j < outputs.length; j++)
@@ -60,12 +70,14 @@ public class NeuralNet {
                 outputs[j] = layers[layerSizes.length - 1].nodes[j].activation;
             }
 
-            System.out.println("Actual output: " + Arrays.toString(outputs));
+            System.out.println("Actual output: " + Arrays.toString(outputs));*/
         }
 
         double totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
 
         System.out.println("Training ran for " + trainingIterations + " iterations with a learning rate of " + learningRate);
+        System.out.println("Training took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms");
+        //lastTimestamp = System.nanoTime();
         //System.out.println("\nTraining inputs are " + Arrays.toString(inputs));
         System.out.println("\nTarget output: " + Arrays.toString(targets));
 
