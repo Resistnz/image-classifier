@@ -4,12 +4,6 @@ import java.io.IOException;
 public class NeuralNet {
     public static void main(String[] args) 
     {
-        long startTime = System.nanoTime();
-        long lastTimestamp = startTime;
-        
-        //double[] input = new double[4096];
-        //double[] input2 = new double[4096];
-
         int numImages = 2;
         double[][] inputs = new double[numImages][4096];
         
@@ -22,32 +16,18 @@ public class NeuralNet {
         }
         catch (IOException e) { e.printStackTrace(); }
 
-        System.out.println("Reading images took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms\n");
-        lastTimestamp = System.nanoTime();
-
         // Parameters
-        //double[] inputs = new double[]{0.3, 0.7};
         double[] targets = new double[]{1};
-
         int[] layerSizes = new int[]{4096, 2000, 1};
         int trainingIterations = 10;
-        double maxError = 0; // Finish iterating once the error is less than this
         double learningRate = 0.01;  
 
         // Create the layers
         Layer[] layers = CreateLayers(layerSizes, inputs[0]);
 
-        System.out.println("Creating layers took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms\n");
-        lastTimestamp = System.nanoTime();
-
-        double totalError = 0;
-
         // Perform each iteration
         for (int i = 0; i < trainingIterations; i++) 
         {
-            //int progressPercent = (int)(100 * i / trainingIterations);
-            //System.out.print("\rCalculating iteration " + i + "/" + trainingIterations + " (" + progressPercent + "%)");
-            
             // Loop over each image
             for (int j = 0; j < numImages; j++)
             {
@@ -60,19 +40,8 @@ public class NeuralNet {
                 // Calculate error
                 Backpropagate(layers, targets, learningRate);
             }
-
-            /*totalError = layers[layerSizes.length - 1].CalculateTotalError(targets);
-
-            if (totalError < maxError) 
-            {
-                trainingIterations = i;
-                break;
-            }*/
         }
 
-        System.out.println("Training ran for " + trainingIterations + " iterations with a learning rate of " + learningRate);
-        System.out.println("Training took " + (System.nanoTime() - lastTimestamp) / 1e6 + " ms");
-        //System.out.println("\nTraining inputs are " + Arrays.toString(input));
         System.out.println("\nTarget output: " + Arrays.toString(targets));
 
         // Get the outputs
@@ -83,26 +52,9 @@ public class NeuralNet {
         }
 
         System.out.println("Actual output: " + Arrays.toString(outputs));
-        System.out.println("Error: " + totalError);
-
-        /*int deadNeurons = 0;
-        double activationSum = 0;
-        double biasSum = 0;
-
-        for (Layer layer : layers)
-        {
-            for (Node node : layer.nodes)
-            {
-                if (Math.abs(node.activation) == 0.001) deadNeurons++;
-                activationSum += node.activation;
-                biasSum += node.bias;
-            }
-        }
-
-        System.out.println("\nDead neurons: " + deadNeurons + ". Activation sum: " + activationSum + ". Bias sum: " + biasSum);*/
+        System.out.println("Error: " + layers[layerSizes.length - 1].CalculateTotalError(targets));
     }
 
-    // Create layers based on the sizes provided and inputs
     public static Layer[] CreateLayers(int[] layerSizes, double[] inputs)
     {
         int numLayers = layerSizes.length;
@@ -148,10 +100,8 @@ public class NeuralNet {
                 {
                     double target = targets[i];
                     
-                    // Derive the different error functions
-                    // Should be in Layer.java
-                    if (targets.length == 1) errorChange = -(target/out - (1-target)*(1-out));
-                    else errorChange = out - target;
+                    // Node delta for last layer
+                    errorChange = -(target/out - (1-target)*(1-out));
                 }
                 else
                 {
@@ -179,20 +129,11 @@ public class NeuralNet {
                 // Go through each weight for this node
                 for (int j = 0; j < node.inputWeights.length; j++)
                 {        
-                    double w = node.inputWeights[j];
-                    
                     // How a change in weight changes the error, de/dw
                     double weightChange = node.delta * layers[layerNum - 1].nodes[j].activation;
 
-                    //System.out.println(node.delta);
-
-                    w -= learningRate * weightChange;
-
-                    //System.out.println("Changed weight from " + node.inputWeights[j] +  " to " + w);
-                    //System.out.println("Changed bias from " + node.bias +  " to " + (node.bias-node.delta));
-
                     // Update the weight
-                    node.inputWeights[j] = w;   
+                    node.inputWeights[j] -= learningRate * weightChange;
                     node.bias -= learningRate * node.delta; // Bias is essentially a node with activation 1
                 }
             }

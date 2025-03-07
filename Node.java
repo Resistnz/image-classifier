@@ -68,19 +68,14 @@ public class Node
             inputWeights[i] = random.nextGaussian() * Math.sqrt(2.0 / numInputs);
         }
 
-        bias = 0.01;
-
-        //if (activationType == NodeActivation.LOGISTIC) System.out.println("womp womp");
-        //activationType = NodeActivation.RELU;
+        bias = 0;
     }
 
     // Add custom weights and bias
     public Node(int numInputs, double[] weights, double bias)
     {
-        this(numInputs);
-
-        inputWeights = weights;
-
+        this.numInputs = numInputs;
+        this.inputWeights = weights;
         this.bias = bias;
     }
 
@@ -95,18 +90,12 @@ public class Node
 
     public void SetActivationFunction(NodeActivation activationType)
     {
-        //System.out.println("Setting activation function: " + activationType);
         this.activationType = activationType;
     }
 
     private double ActivationFunction(double input)
     {
         return activationType.activate(input);
-    }
-
-    public NodeActivation GetNodeActivation()
-    {
-        return activationType;
     }
 
     public double ActivationFunctionDerivative(double x)
